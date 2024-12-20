@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complétez la série logique</title>
+</head>
+<body style="font-family: Arial, sans-serif; text-align: center; background-color: #f4f8fc; padding: 20px;">
+
+    <h1 style="color: #333;">Complétez la série logique</h1>
+    <div id="timer" style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #dc3545;">Temps restant : 01:00</div>
+
+    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;">
+        <div style="width: 60px; height: 60px; line-height: 60px; background-color: #007bff; color: white; border-radius: 50%; font-weight: bold;">3</div>
+        <div style="width: 60px; height: 60px; line-height: 60px; background-color: #007bff; color: white; border-radius: 50%; font-weight: bold;">6</div>
+        <div style="width: 60px; height: 60px; line-height: 60px; background-color: #007bff; color: white; border-radius: 50%; font-weight: bold;">12</div>
+        <div style="width: 60px; height: 60px; line-height: 60px; background-color: #007bff; color: white; border-radius: 50%; font-weight: bold;">24</div>
+        <div class="empty" data-answer="48" style="width: 60px; height: 60px; line-height: 60px; background-color: #d1ecf1; border: 2px dashed #007bff; color: #007bff; border-radius: 50%; font-weight: bold;">?</div>
+        <div class="empty" data-answer="96" style="width: 60px; height: 60px; line-height: 60px; background-color: #d1ecf1; border: 2px dashed #007bff; color: #007bff; border-radius: 50%; font-weight: bold;">?</div>
+        <div style="width: 60px; height: 60px; line-height: 60px; background-color: #007bff; color: white; border-radius: 50%; font-weight: bold;">192</div>
+    </div>
+
+    <div id="choices" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+        <div draggable="true" style="width: 60px; height: 60px; line-height: 60px; background-color: #ff6b6b; color: white; border-radius: 50%; font-weight: bold; cursor: grab;">48</div>
+        <div draggable="true" style="width: 60px; height: 60px; line-height: 60px; background-color: #ff6b6b; color: white; border-radius: 50%; font-weight: bold; cursor: grab;">96</div>
+        <div draggable="true" style="width: 60px; height: 60px; line-height: 60px; background-color: #ff6b6b; color: white; border-radius: 50%; font-weight: bold; cursor: grab;">72</div>
+        <div draggable="true" style="width: 60px; height: 60px; line-height: 60px; background-color: #ff6b6b; color: white; border-radius: 50%; font-weight: bold; cursor: grab;">36</div>
+    </div>
+
+    <div>
+        <button id="reset" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Réinitialiser</button>
+        <button id="submit" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Valider</button>
+    </div>
+
+    <div id="result" style="margin-top: 20px; font-size: 20px; font-weight: bold;"></div>
+
+    <script>
+        const choices = document.querySelectorAll("#choices div");
+        const empties = document.querySelectorAll(".empty");
+        const result = document.getElementById("result");
+        const resetButton = document.getElementById("reset");
+        const submitButton = document.getElementById("submit");
+        const timer = document.getElementById("timer");
+
+        let timeRemaining = 60;
+
+        // Countdown timer
+        const countdown = setInterval(() => {
+            timeRemaining--;
+            const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+            const seconds = (timeRemaining % 60).toString().padStart(2, '0');
+            timer.textContent = `Temps restant : ${minutes}:${seconds}`;
+            if (timeRemaining <= 0) {
+                clearInterval(countdown);
+                timer.textContent = "Temps écoulé !";
+                submitButton.disabled = true;
+            }
+        }, 1000);
+
+        // Drag and drop functionality
+        choices.forEach(choice => {
+            choice.addEventListener("dragstart", (e) => {
+                e.dataTransfer.setData("text/plain", e.target.textContent);
+            });
+        });
+
+        empties.forEach(empty => {
+            empty.addEventListener("dragover", (e) => {
+                e.preventDefault();
+            });
+
+            empty.addEventListener("drop", (e) => {
+                const draggedValue = e.dataTransfer.getData("text/plain");
+                if (!empty.textContent || empty.textContent === "?") {
+                    empty.textContent = draggedValue;
+                    empty.style.backgroundColor = "#ff6b6b";
+                    empty.style.color = "white";
+                }
+            });
+        });
+
+        // Submit button logic
+        submitButton.addEventListener("click", () => {
+            let correct = true;
+            empties.forEach(empty => {
+                if (empty.textContent !== empty.getAttribute("data-answer")) {
+                    correct = false;
+                }
+            });
+            result.textContent = correct ? "Bravo ! Réponses correctes." : "Essayez encore. Réponses incorrectes.";
+            result.style.color = correct ? "green" : "red";
+        });
+
+        // Reset button logic
+        resetButton.addEventListener("click", () => {
+            empties.forEach(empty => {
+                empty.textContent = "?";
+                empty.style.backgroundColor = "#d1ecf1";
+                empty.style.color = "#007bff";
+            });
+            result.textContent = "";
+            submitButton.disabled = false;
+            timeRemaining = 60;
+        });
+    </script>
+</body>
+</html>
